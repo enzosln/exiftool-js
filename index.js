@@ -1,17 +1,5 @@
-import { spawn, spawnSync } from 'child_process'
+import { spawn, spawnSync } from 'child_process';
 
-/**
- * Returns the metadata of the given source. Returns a Promise or uses the passed callback.
- *
- * @export
- * @param {object} options
- * @param {string|string[]|Buffer} options.source - The media for which we want to extract the metadata
- * @param {string[]} [options.tags] - List of metadata tags to whitelist or blacklist (add '-' before each tag). See [ExifTool Tag Names]{@link http://www.sno.phy.queensu.ca/%7Ephil/exiftool/TagNames/index.html} for available tags.
- * @param {boolean} [options.useBufferLimit=true] - Allows the limiting the size of the buffer that is piped into ExifTool
- * @param {number} [options.maxBufferSize=10000] - Size of the buffer that is piped into ExifTool
- * @param {metadataCallback} [options.callback] - Callback that receives the metadata
- * @returns {Promise.<object[]>} A promise that contains the metadata for the media in an Array of Objects
- */
 export function metadata({ source, tags, useBufferLimit = true, maxBufferSize = 10000, callback }) {
   return new Promise((resolve, reject) => {
     process.nextTick(() => {
@@ -21,14 +9,14 @@ export function metadata({ source, tags, useBufferLimit = true, maxBufferSize = 
         reject(error)
       }
       let exifparams = prepareTags(tags)
-      // "-j" for Exiftool json output
+      // "-j" json output
       exifparams.push('-j')
 
       let usingBuffer = false
 
       if (Buffer.isBuffer(source)) {
         usingBuffer = true
-        exifparams.push('-') // "-" for piping the buffer into Exiftool
+        exifparams.push('-')
       } else if (typeof source === 'string') {
         exifparams.push(source)
       } else if (Array.isArray(source)) {
@@ -81,28 +69,17 @@ export function metadata({ source, tags, useBufferLimit = true, maxBufferSize = 
   })
 }
 
-/**
- * Returns the metadata of the given source synchroniously.
- *
- * @export
- * @param {object} options
- * @param {string|string[]|Buffer} options.source - The media for which we want to extract the metadata
- * @param {string[]} [options.tags] - List of metadata tags to whitelist or blacklist (add '-' before each tag). See [ExifTool Tag Names]{@link http://www.sno.phy.queensu.ca/%7Ephil/exiftool/TagNames/index.html} for available tags.
- * @param {boolean} [options.useBufferLimit=true] - Allows the limiting the size of the buffer that is piped into ExifTool
- * @param {number} [options.maxBufferSize=10000] - Size of the buffer that is piped into ExifTool
- * @returns {object[]} An array of objects that contains the metadata for each media
- */
+
 export function metadataSync({ source, tags, useBufferLimit = true, maxBufferSize = 10000 }) {
   if (!source) {
     throw new Error('Undefined "source"')
   }
   let exifparams = prepareTags(tags)
-  // "-j" for Exiftool json output
+  // "-j" json output
   exifparams.push('-j')
 
   let etdata
   if (Buffer.isBuffer(source)) {
-    // "-" for piping the buffer into Exiftool
     exifparams.push('-')
     let buf = useBufferLimit ? source.slice(0, maxBufferSize) : source
     etdata = spawnSync('exiftool', exifparams, { input: buf })
@@ -132,14 +109,12 @@ export function metadataSync({ source, tags, useBufferLimit = true, maxBufferSiz
   }
 }
 
-// Helper function for tag preparation.
 function tryCallback(cbfunction, error, result) {
   if (cbfunction) {
     cbfunction(error, result)
   }
 }
 
-// Helper function for tag preparation.
 function prepareTags(tags) {
   if (tags) {
     tags = tags.map((tagname) => {
