@@ -1,6 +1,6 @@
 {
-  "name": "exiftool-js",
-  "version": "1.0.0",
+  "name": "@enzosln/exiftool-js",
+  "version": "1.0.1",
   "description": "Une implémentation d'Exiftool en javascript.",
   "main": "index.js",
   "scripts": {
